@@ -71,12 +71,21 @@ export default function RulesRegulationsPage() {
           <Link
             key={card.slug}
             href={`/rules-regulations/${card.slug}`}
-
-            /* 🔧 THIS IS THE CHANGE YOU ASKED ABOUT */
             className="
-              block bg-white rounded-2xl p-10 shadow-sm
-              border border-slate-200 hover:border-slate-300
-              transition-all duration-300
+              block bg-white rounded-2xl p-10
+
+              /* 🔹 BORDER ENHANCEMENT */
+              border-2 border-slate-200
+
+              /* 🔹 DEPTH & ELEGANCE */
+              shadow-sm
+
+              /* 🔹 HOVER POLISH */
+              hover:-translate-y-1
+              hover:shadow-xl
+              hover:border-slate-300
+
+              transition-all duration-300 ease-out
               radial-hover
             "
           >
