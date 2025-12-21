@@ -1,33 +1,41 @@
+"use client";
+
 import Link from "next/link";
 
 export default function HomeCards() {
   const cards = [
-    {
-      title: "Rules & Regulations",
-      desc: "What you are legally allowed to do — and what can get you into trouble.",
-      link: "/rules-regulations",
-    },
-    {
-      title: "Money & Cost of Living",
-      desc: "Real expenses beyond tuition, rent, and Instagram expectations.",
-    },
-    {
-      title: "Life & Culture",
-      desc: "Unspoken rules, social behaviour, and daily life realities.",
-    },
-    {
-      title: "Study & Education",
-      desc: "How education systems actually work — not brochure promises.",
-    },
-    {
-      title: "Work & Jobs",
-      desc: "Part-time rules, work culture, and survival expectations.",
-    },
-    {
-      title: "Safety & Daily Living",
-      desc: "Healthcare, emergencies, and everyday safety basics.",
-    },
-  ];
+  {
+    title: "Rules & Regulations",
+    desc: "What you are legally allowed to do — and what can get you into trouble.",
+    link: "/rules-regulations",
+  },
+  {
+    title: "Money & Cost of Living",
+    desc: "Real expenses beyond tuition, rent, and Instagram expectations.",
+    link: "/money",
+  },
+  {
+    title: "Life & Culture",
+    desc: "Unspoken rules, social behaviour, and daily life realities.",
+    link: "/life",
+  },
+  {
+    title: "Study & Education",
+    desc: "How education systems actually function — not brochure promises..",
+    link: "/study",
+  },
+  {
+    title: "Work & Jobs",
+    desc: "Employment rules, job realities, work culture, and expectations abroad..",
+    link: "/work",
+  },
+  {
+    title: "Safety & Daily Living",
+    desc: "Healthcare, emergencies, and everyday safety essentials.",
+    link: "/safety",
+  },
+];
+
 
   return (
     <section className="w-full px-10 py-28 bg-slate-50">

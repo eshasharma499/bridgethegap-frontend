@@ -1,5 +1,5 @@
-import RulesRegulationsPage from "./Rpage";
+import Rpage from "./Rpage";
 
 export default function Page() {
-  return <RulesRegulationsPage />;
+  return <Rpage />;
 }
