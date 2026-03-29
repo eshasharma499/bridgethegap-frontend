@@ -113,3 +113,12 @@ body {
   position: relative;
   z-index: 1;
 }
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 40px rgba(255,255,255,0.05);
+  }
+  50% {
+    box-shadow: 0 0 80px rgba(255,255,255,0.12);
+  }
+}

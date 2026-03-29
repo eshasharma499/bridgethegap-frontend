@@ -1,62 +1,42 @@
-'use client'
-
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { login, isLoggedIn } from '../../lib/auth'
+"use client";
+import { useEffect } from "react";
+import { AuthCard, GlobeBackground } from "@/components/Login";
 
 export default function LoginPage() {
-  const router = useRouter()
-  const [email, setEmail] = useState('')
 
-  // If already logged in → go home
-  if (typeof window !== 'undefined' && isLoggedIn()) {
-    router.replace('/')
-    return null
-  }
+  // 💡 Cursor glow movement
+  useEffect(() => {
+    const glow = document.getElementById("cursor-glow");
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault()
-    login(email)
-    router.push('/')
-  }
+    window.addEventListener("mousemove", (e) => {
+      if (glow) {
+        glow.style.transform = `translate(${e.clientX - 200}px, ${e.clientY - 200}px)`;
+      }
+    });
+  }, []);
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
-      <div className="border border-white/40 p-[6px] rounded-xl">
-        <div className="border border-white/20 rounded-lg px-10 py-12 w-[420px] bg-black">
+    <div className="relative h-screen w-full overflow-hidden bg-black">
 
-          <h1 className="text-white text-2xl mb-2">
-            Welcome back
-          </h1>
-          <p className="text-zinc-400 text-sm mb-10">
-            Continue where clarity begins.
-          </p>
+      {/* 🌍 Globe */}
+      <GlobeBackground />
 
-          <form onSubmit={handleLogin} className="space-y-10">
-            <div>
-              <label className="text-xs uppercase tracking-widest text-zinc-500 mb-3 block">
-                Email address
-              </label>
+      {/* 🌌 Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/90 z-10" />
 
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full bg-transparent border-b border-white/40 py-2 text-white focus:outline-none focus:border-white"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full border border-white py-3 uppercase tracking-widest text-sm hover:bg-white hover:text-black transition"
-            >
-              Continue
-            </button>
-          </form>
-
-        </div>
+      {/* 💡 Cursor Glow */}
+      <div className="pointer-events-none fixed inset-0 z-10">
+        <div
+          id="cursor-glow"
+          className="absolute w-[400px] h-[400px] bg-white/10 rounded-full blur-3xl mix-blend-overlay"
+        />
       </div>
+
+      {/* 🧊 Card */}
+      <div className="relative z-20 flex h-full items-center justify-center">
+        <AuthCard />
+      </div>
+
     </div>
-  )
+  );
 }
