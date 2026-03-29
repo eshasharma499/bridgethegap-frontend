@@ -1,6 +1,6 @@
-import Header from "./components/Header";
-import HeroSlider from "./components/HeroSlider";
-import HomeCards from "./components/HomeCards";
+import Header from "@/components/Header";
+import HeroSlider from "@/components/HeroSlider";
+import HomeCards from "@/components/HomeCards";
 
 export default function Home() {
   return (
