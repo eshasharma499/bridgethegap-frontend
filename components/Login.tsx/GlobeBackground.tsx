@@ -50,7 +50,7 @@ export default function GlobeBackground() {
       color: 0xffffff,
       wireframe: true,
       transparent: true,
-      opacity: 1,
+      opacity: 0.8,
     });
 
     const wire = new THREE.Mesh(geometry, wireMaterial);

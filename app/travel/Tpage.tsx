@@ -55,7 +55,7 @@ export default function TravelPage() {
     setResult(null);
 
     try {
-      const res = await fetch("/api/plan", {
+      const res = await fetch("/api/framework", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: q.trim() }),
@@ -168,7 +168,7 @@ export default function TravelPage() {
 
             {/* Destination cards */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {result.destinations.map((dest, i) => (
+              {result?.destinations?.map((dest, i) => (
                 <DestinationCard key={i} dest={dest} />
               ))}
             </div>
@@ -180,7 +180,7 @@ export default function TravelPage() {
                   Travel Intelligence
                 </p>
                 <div className="grid md:grid-cols-2 gap-4">
-                  {result.tips.map((tip, i) => (
+                  {result?.tips?.map((tip, i) => (
                     <div key={i}
                       className="bg-white rounded-2xl border border-slate-200 p-5 flex items-start gap-3 shadow-sm">
                       <span className="text-slate-300 mt-0.5">✦</span>

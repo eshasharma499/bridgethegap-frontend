@@ -1,122 +1,173 @@
 import { NextResponse } from "next/server";
 
+const SYSTEM_PROMPT = `You are BridgeTheGap AI — a knowledge platform that gives real, factual, honest information about life abroad to Indian users.
+
+Your core framework is: Question → Consequence → Reality
+
+IMPORTANT:
+- DO NOT label sections as Q, C, R
+- Write like a human explaining to a friend
+- Keep it conversational but informative
+- Avoid robotic tone
+- Blend consequence and reality naturally
+
+TONE:
+- Speak like an experienced Indian who has lived abroad
+- Be practical, slightly advisory, not overly formal
+- Avoid textbook explanations
+
+STRICT RULE:
+- Output must be valid JSON
+- Do NOT include any text before or after JSON
+- Do NOT explain anything outside JSON
+- If unsure, still return best possible JSON
+
+STRUCTURE:
+
+If travel:
+{
+  "intent": "travel",
+  "destinations": [
+    {
+      "name": "",
+      "country": "",
+      "emoji": "",
+      "description": "",
+      "costBreakdown": {
+        "flight": "",
+        "stay": "",
+        "food": "",
+        "total": ""
+      },
+      "visaInfo": {
+        "required": true,
+        "type": "",
+        "duration": "",
+        "cost": ""
+      },
+      "bestTime": "",
+      "matchScore": 0
+    }
+  ],
+  "tips": []
+}
+
+If general:
+{
+  "intent": "general",
+  "destinations": [],
+  "tips": [],
+  "answer": "Natural human explanation using Q→C→R thinking internally"
+}
+
+Be factual. Do not hallucinate rules or numbers.
+`;
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { query, country } = body;
 
     if (!query) {
-      return NextResponse.json(
-        { error: "Query required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Query required" }, { status: 400 });
     }
 
-    console.log("MOCK MODE ACTIVE");
+    const enhancedQuery = buildEnhancedQuery(query, country);
 
-    const answer = getSmartMockAnswer(query, country);
+    const contextualQuery = country
+      ? `Country context: ${country}\n\n${enhancedQuery}`
+      : enhancedQuery;
 
-    return NextResponse.json({ answer });
+    // 🔥 OLLAMA CALL (optimized)
+    const response = await fetch("http://localhost:11434/api/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "llama3",
+        prompt: `${SYSTEM_PROMPT}\n\nUser Query:\n${contextualQuery}`,
+        stream: false,
+      }),
+    });
+
+    const data = await response.json();
+
+    // 🔥 FAST + SAFE PARSE
+    const parsed = safeParseJSON(data.response);
+
+    if (!parsed) {
+      return fallbackResponse(data.response);
+    }
+
+    // 🔥 ENSURE SHAPE CONSISTENCY
+    return NextResponse.json(normalizeResponse(parsed));
 
   } catch (error) {
-    console.error("Mock API error:", error);
-
-    return NextResponse.json({
-      answer: "Something went wrong in mock mode.",
-    });
+    console.error("Framework API error:", error);
+    return fallbackResponse(null);
   }
 }
 
-function getSmartMockAnswer(query: string, country: string | null): string {
+
+// 🔥 SMART QUERY BUILDER (lightweight, fast)
+function buildEnhancedQuery(query: string, country: string | null) {
   const q = query.toLowerCase();
 
-  // 🔹 Handle vague input
-  if (q.trim() === "hi" || q.trim() === "hello") {
-    return `Tell me what you're planning:
+  let intent = "general";
 
-→ Study abroad
-→ Work abroad
-→ Travel
-
-Or ask something like:
-"Can I work part-time in Germany?"`;
+  if (
+    q.includes("trip") ||
+    q.includes("travel") ||
+    q.includes("budget") ||
+    q.includes("days")
+  ) {
+    intent = "travel";
   }
 
-  // 🔹 Work + Student
-  if (q.includes("work") && q.includes("student")) {
-    return `Question: Can you work while studying?
+  return `
+Intent: ${intent}
+User Input: ${query}
+Country: ${country || "Not specified"}
 
-Consequence: Exceeding allowed work hours is a visa violation. This can lead to visa cancellation, deportation, and future bans.
+Extract clearly:
+- Budget (INR)
+- Duration (days)
+- Travel type (solo/couple/family)
+- Preference (budget/luxury/balanced)
 
-Reality: Germany allows 120 full days/year. UK allows 20 hrs/week. Australia allows 48 hrs/fortnight. Students exceeding limits have been deported mid-course.
+Respond strictly in JSON.
+`;
+}
 
-What you should do: Track your hours strictly and avoid cash jobs.`;
+
+// 🔥 SAFE JSON PARSER (very important)
+function safeParseJSON(text: string) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
   }
+}
 
-  // 🔹 Cost / Living
-  if (q.includes("cost") || q.includes("living")) {
-    return `Question: What is the real cost of living?
 
-Consequence: Underestimating costs leads to running out of money and relying on illegal work.
+// 🔥 NORMALIZE RESPONSE (prevents frontend crashes)
+function normalizeResponse(data: any) {
+  return {
+    intent: data.intent || "general",
+    destinations: data.destinations || [],
+    tips: data.tips || [],
+    answer: data.answer || "",
+  };
+}
 
-Reality: Canada (Toronto): ₹1.2L–₹1.8L/month. Rent alone can cross ₹1L. Most students underestimate by 40%.
 
-What you should do: Always keep a 30–40% buffer and don’t trust outdated internet estimates.`;
-  }
-
-  // 🔹 PR
-  if (q.includes("pr") || q.includes("permanent")) {
-    return `Question: Is PR easy?
-
-Consequence: Assuming PR is guaranteed can leave you stuck on temporary visas for years.
-
-Reality: Canada PR is points-based and competitive. Australia PR has strict occupation lists. Many applicants wait 2–5 years.
-
-What you should do: Plan PR as a possibility, not a guarantee. Always have a backup plan.`;
-  }
-
-  // 🔹 Housing
-  if (q.includes("rent") || q.includes("accommodation") || q.includes("housing")) {
-    return `Question: How hard is finding accommodation?
-
-Consequence: Not understanding contracts can lead to scams or losing deposits.
-
-Reality: Cities like Toronto, London, Berlin have severe housing shortages. Deposits can be 2–3 months’ rent.
-
-What you should do: Always verify listings, avoid cash deals, and read contracts carefully.`;
-  }
-
-  // 🔹 Visa / Rules
-  if (q.includes("visa") || q.includes("illegal") || q.includes("overstay")) {
-    return `Question: What happens if you break visa rules?
-
-Consequence: Visa violations can lead to deportation, bans (3–10 years), and rejection of future applications.
-
-Reality: Even small violations like working extra hours are tracked via payslips and tax records.
-
-What you should do: Always follow official rules strictly. Don’t rely on “everyone does it” advice.`;
-  }
-
-  // 🔹 Country-specific
-  if (country) {
-    return `Question: What is life like in ${country}?
-
-Consequence: Not understanding local systems can affect your visa, job, and long-term stay.
-
-Reality: Most Indians struggle with housing, part-time job balance, and legal rules initially.
-
-What you should do: Ask specific questions about ${country} like cost, jobs, or visa rules for clearer guidance.`;
-  }
-
-  // 🔹 Default fallback
-  return `I need a bit more clarity.
-
-You can ask things like:
-
-→ Can I work part-time in Germany?
-→ What is real cost of living in Canada?
-→ Is PR easy in Australia?
-→ What mistakes do students make abroad?
-
-Tell me your situation and I’ll guide you properly.`;
+// 🔥 FALLBACK (never breaks UI)
+function fallbackResponse(raw: string | null) {
+  return NextResponse.json({
+    intent: "general",
+    destinations: [],
+    tips: [],
+    answer: raw || "Something went wrong. Please try again.",
+  });
 }

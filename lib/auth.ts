@@ -1,26 +1,18 @@
-// app/lib/auth.ts
+import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
 
-const USER_KEY = 'btg_user'
+// 🔐 Get user from token (SERVER SIDE)
+export async function getUserFromToken() {
+  try {
+    const cookieStore = await cookies(); // ✅ FIX HERE
+    const token = cookieStore.get("token")?.value;
 
-// LOGIN
-export const login = (email: string) => {
-  if (typeof window === 'undefined') return
-  localStorage.setItem(USER_KEY, email)
-}
+    if (!token) return null;
 
-// LOGOUT
-export const logout = () => {
-  if (typeof window === 'undefined') return
-  localStorage.removeItem(USER_KEY)
-}
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    return decoded;
 
-// CHECK LOGIN
-export const getUser = () => {
-  if (typeof window === 'undefined') return null
-  return localStorage.getItem(USER_KEY)
-}
-
-// BOOLEAN CHECK
-export const isLoggedIn = () => {
-  return !!getUser()
+  } catch {
+    return null;
+  }
 }
