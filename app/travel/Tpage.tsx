@@ -70,10 +70,18 @@ export default function TravelPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#F8F7FB]">
+    <main className="min-h-screen bg-[#F8F7FB] relative overflow-hidden">
+
+      {/* 🌈 Background Glow Layer */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute top-[-100px] left-[-100px] w-[400px] h-[400px] bg-blue-200/30 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-120px] right-[-100px] w-[400px] h-[400px] bg-purple-200/30 rounded-full blur-[120px]" />
+      </div>
 
       {/* ── PAGE HEADER ── */}
-      <section className="px-10 py-20 max-w-6xl mx-auto">
+      <section className="px-10 py-20 max-w-6xl mx-auto relative">
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-white/60 to-transparent blur-2xl" />
+
         <p className="uppercase tracking-widest text-sm text-slate-400 mb-4">
           AI Planner · Travel
         </p>
@@ -92,7 +100,7 @@ export default function TravelPage() {
       <section className="px-10 max-w-6xl mx-auto">
 
         {/* Search bar */}
-        <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-sm p-2 flex items-center gap-3 focus-within:border-slate-400 transition-all">
+        <div className="bg-white/80 backdrop-blur-xl rounded-2xl border-2 border-slate-200 shadow-md p-2 flex items-center gap-3 focus-within:border-blue-400 focus-within:shadow-[0_0_30px_rgba(59,130,246,0.15)] transition-all duration-300">
           <span className="pl-3 text-slate-400">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
@@ -111,7 +119,7 @@ export default function TravelPage() {
           <button
             onClick={() => handleSearch(query)}
             disabled={loading || !query.trim()}
-            className="bg-slate-900 text-white text-sm px-6 py-3 rounded-xl hover:bg-slate-700 disabled:opacity-40 transition-all"
+            className="bg-slate-900 text-white text-sm px-6 py-3 rounded-xl hover:bg-slate-700 hover:scale-[1.03] active:scale-[0.98] disabled:opacity-40 transition-all duration-200 shadow-md hover:shadow-lg"
           >
             {loading ? "Planning..." : "Plan Trip →"}
           </button>
@@ -123,7 +131,7 @@ export default function TravelPage() {
             <button
               key={ex}
               onClick={() => { setQuery(ex); handleSearch(ex); }}
-              className="text-xs px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-500 hover:border-slate-400 hover:text-slate-800 transition-all"
+              className="text-xs px-4 py-2 rounded-full bg-white/80 backdrop-blur border border-slate-200 text-slate-500 hover:border-blue-300 hover:text-slate-800 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200"
             >
               {ex}
             </button>
@@ -134,15 +142,15 @@ export default function TravelPage() {
       {/* ── RESULTS ── */}
       <section className="px-10 pb-32 max-w-6xl mx-auto">
 
-        {/* Loading skeletons */}
+        {/* Loading */}
         {loading && (
           <div>
-            <p className="text-sm text-slate-400 mb-6 italic">
-              Planning your trip for &quot;{submitted}&quot;...
+            <p className="text-sm text-slate-400 mb-6 italic animate-pulse">
+              ✨ Planning your trip for "{submitted}"...
             </p>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-white rounded-2xl p-6 shadow-sm space-y-4 animate-pulse">
+                <div key={i} className="bg-white/90 backdrop-blur rounded-2xl p-6 shadow-sm space-y-4 animate-pulse">
                   <div className="h-6 bg-slate-100 rounded w-2/3" />
                   <div className="h-4 bg-slate-100 rounded w-full" />
                   <div className="h-4 bg-slate-100 rounded w-5/6" />
@@ -160,20 +168,17 @@ export default function TravelPage() {
         {/* Results */}
         {result && !loading && (
           <div>
-            {/* Query echo */}
             <p className="text-sm text-slate-400 mb-2">Results for</p>
             <p className="text-xl font-semibold text-slate-800 mb-8 italic">
-              &quot;{submitted}&quot;
+              "{submitted}"
             </p>
 
-            {/* Destination cards */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
               {result?.destinations?.map((dest, i) => (
                 <DestinationCard key={i} dest={dest} />
               ))}
             </div>
 
-            {/* Tips */}
             {result.tips.length > 0 && (
               <div>
                 <p className="uppercase tracking-widest text-xs text-slate-400 mb-4">
@@ -182,7 +187,7 @@ export default function TravelPage() {
                 <div className="grid md:grid-cols-2 gap-4">
                   {result?.tips?.map((tip, i) => (
                     <div key={i}
-                      className="bg-white rounded-2xl border border-slate-200 p-5 flex items-start gap-3 shadow-sm">
+                      className="bg-white/90 backdrop-blur rounded-2xl border border-slate-200 p-5 flex items-start gap-3 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
                       <span className="text-slate-300 mt-0.5">✦</span>
                       <p className="text-sm text-slate-600 leading-relaxed">{tip}</p>
                     </div>
@@ -193,7 +198,6 @@ export default function TravelPage() {
           </div>
         )}
 
-        {/* Empty state */}
         {!result && !loading && (
           <div className="text-center py-20">
             <p className="text-6xl mb-4">🌍</p>
@@ -212,10 +216,13 @@ export default function TravelPage() {
 
 function DestinationCard({ dest }: { dest: Destination }) {
   return (
-    <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-sm hover:-translate-y-1 hover:shadow-lg hover:border-slate-300 transition-all duration-300 p-6 flex flex-col gap-4">
+    <div className="bg-white/90 backdrop-blur-xl rounded-2xl border-2 border-slate-200 shadow-sm hover:-translate-y-2 hover:shadow-2xl hover:border-blue-200 transition-all duration-300 p-6 flex flex-col gap-4 relative overflow-hidden">
+
+      {/* Glow overlay */}
+      <div className="absolute inset-0 opacity-0 hover:opacity-100 transition duration-500 bg-gradient-to-br from-blue-50/40 to-purple-50/40 pointer-events-none" />
 
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between relative z-10">
         <div className="flex items-center gap-3">
           <span className="text-3xl">{dest.emoji}</span>
           <div>
@@ -226,14 +233,24 @@ function DestinationCard({ dest }: { dest: Destination }) {
         <div className="text-right">
           <p className="text-xs text-slate-400 mb-0.5">Match</p>
           <p className="text-lg font-semibold text-slate-700">{dest.matchScore}%</p>
+
+          {/* Progress bar */}
+          <div className="w-full h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-blue-400 to-purple-400 rounded-full transition-all duration-700"
+              style={{ width: `${dest.matchScore}%` }}
+            />
+          </div>
         </div>
       </div>
 
       {/* Description */}
-      <p className="text-sm text-slate-500 leading-relaxed">{dest.description}</p>
+      <p className="text-sm text-slate-500 leading-relaxed relative z-10">
+        {dest.description}
+      </p>
 
-      {/* Cost breakdown */}
-      <div className="bg-slate-50 rounded-xl p-4 space-y-2">
+      {/* Cost */}
+      <div className="bg-slate-50/80 backdrop-blur rounded-xl p-4 space-y-2 border border-slate-100 relative z-10">
         <p className="text-xs uppercase tracking-widest text-slate-400 mb-3">Cost Breakdown</p>
         {[
           { label: "✈ Flight", val: dest.costBreakdown.flight },
@@ -252,7 +269,7 @@ function DestinationCard({ dest }: { dest: Destination }) {
       </div>
 
       {/* Visa + Best time */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 relative z-10">
         <div className="flex-1 bg-slate-50 rounded-xl p-3">
           <p className="text-xs uppercase tracking-widest text-slate-400 mb-1">Visa</p>
           <p className="text-xs font-medium text-slate-700">{dest.visaInfo.type}</p>
